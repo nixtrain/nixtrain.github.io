@@ -1,9 +1,1417 @@
 <!DOCTYPE html>
-<html>
+<html lang="id" data-theme="dark">
 <head>
-  <title>Website Saya</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nixtrain Knowledge Base</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #e8000d;
+    --red-dim: #a80009;
+    --red-glow: rgba(232,0,13,0.15);
+    --bg: #0d0d0d;
+    --bg2: #141414;
+    --bg3: #1a1a1a;
+    --bg4: #222222;
+    --border: #2a2a2a;
+    --text: #e8e8e8;
+    --text-dim: #888;
+    --text-muted: #555;
+    --sidebar-w: 280px;
+    --header-h: 56px;
+    --code-bg: #111;
+    --tip: #00b894;
+    --warn: #fdcb6e;
+    --danger: #e8000d;
+    --info: #0984e3;
+  }
+  [data-theme="light"] {
+    --bg: #f8f8f8;
+    --bg2: #ffffff;
+    --bg3: #f0f0f0;
+    --bg4: #e8e8e8;
+    --border: #ddd;
+    --text: #1a1a1a;
+    --text-dim: #555;
+    --text-muted: #999;
+    --code-bg: #1e1e1e;
+    --red-glow: rgba(232,0,13,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: var(--header-h);
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px;
+    padding: 0 20px;
+  }
+  .header-logo {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--text);
+    font-weight: 700; font-size: 16px;
+    white-space: nowrap;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--red);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px; font-weight: 600; color: white;
+    flex-shrink: 0;
+  }
+  .header-search {
+    flex: 1; max-width: 480px; margin-left: 16px;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0 14px; height: 36px;
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .header-search:focus-within { border-color: var(--red); }
+  .header-search input {
+    flex: 1; background: none; border: none; outline: none;
+    color: var(--text); font-family: 'Sora', sans-serif; font-size: 13.5px;
+  }
+  .header-search input::placeholder { color: var(--text-muted); }
+  .search-icon { color: var(--text-muted); font-size: 14px; }
+  .header-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .btn-icon {
+    width: 34px; height: 34px; border-radius: 7px;
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text-dim); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; transition: all 0.2s;
+  }
+  .btn-icon:hover { background: var(--bg4); color: var(--text); border-color: var(--red); }
+  .menu-btn { display: none; }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: flex;
+    margin-top: var(--header-h);
+    min-height: calc(100vh - var(--header-h));
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: var(--header-h); bottom: 0;
+    overflow-y: auto; overflow-x: hidden;
+    padding: 20px 0 40px;
+    transition: transform 0.3s ease;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .nav-section { margin-bottom: 4px; }
+  .nav-section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 12px 20px 6px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 20px; cursor: pointer;
+    color: var(--text-dim); font-size: 13.5px;
+    border-left: 2px solid transparent;
+    transition: all 0.15s; text-decoration: none;
+    position: relative;
+  }
+  .nav-item:hover { color: var(--text); background: var(--bg3); }
+  .nav-item.active {
+    color: var(--red); background: var(--red-glow);
+    border-left-color: var(--red); font-weight: 600;
+  }
+  .nav-item .nav-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+  .nav-group-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 20px; cursor: pointer;
+    color: var(--text-dim); font-size: 13.5px;
+    transition: all 0.15s; width: 100%;
+    background: none; border: none; text-align: left;
+  }
+  .nav-group-btn:hover { color: var(--text); background: var(--bg3); }
+  .nav-group-btn .chevron {
+    margin-left: auto; font-size: 10px;
+    transition: transform 0.2s;
+  }
+  .nav-group-btn.open .chevron { transform: rotate(90deg); }
+  .nav-children {
+    overflow: hidden; max-height: 0;
+    transition: max-height 0.25s ease;
+  }
+  .nav-children.open { max-height: 500px; }
+  .nav-children .nav-item { padding-left: 48px; font-size: 13px; }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    display: flex;
+  }
+  .content {
+    flex: 1;
+    max-width: 860px;
+    padding: 48px 60px 80px;
+    min-width: 0;
+  }
+
+  /* ── TOC (right) ── */
+  .toc {
+    width: 220px; flex-shrink: 0;
+    position: sticky; top: calc(var(--header-h) + 24px);
+    height: fit-content;
+    padding: 24px 20px;
+  }
+  .toc-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 12px;
+  }
+  .toc-list { list-style: none; }
+  .toc-list li { margin-bottom: 4px; }
+  .toc-list a {
+    font-size: 12.5px; color: var(--text-muted);
+    text-decoration: none; display: block;
+    padding: 3px 0 3px 12px;
+    border-left: 1px solid var(--border);
+    transition: all 0.15s;
+  }
+  .toc-list a:hover { color: var(--red); border-left-color: var(--red); }
+
+  /* ── PAGE CONTENT ── */
+  .page { display: none; animation: fadein 0.2s ease; }
+  .page.active { display: block; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .page-header { margin-bottom: 36px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .breadcrumb {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; color: var(--text-muted);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+  }
+  .breadcrumb span { color: var(--text-dim); }
+  .page h1 { font-size: 28px; font-weight: 700; line-height: 1.3; color: var(--text); }
+  .page-desc { margin-top: 10px; color: var(--text-dim); font-size: 15px; }
+  .page-meta {
+    display: flex; align-items: center; gap: 16px;
+    margin-top: 14px; font-size: 12px; color: var(--text-muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .tag {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 8px;
+    font-size: 11px; color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .page h2 { font-size: 20px; font-weight: 600; margin: 36px 0 14px; color: var(--text); }
+  .page h3 { font-size: 16px; font-weight: 600; margin: 24px 0 10px; color: var(--text); }
+  .page p { margin-bottom: 16px; color: var(--text-dim); }
+  .page ul, .page ol { margin: 0 0 16px 20px; color: var(--text-dim); }
+  .page li { margin-bottom: 6px; }
+  .page a { color: var(--red); text-decoration: none; }
+  .page a:hover { text-decoration: underline; }
+
+  /* Code */
+  .page pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px;
+    overflow-x: auto; margin: 16px 0;
+    position: relative;
+  }
+  .page pre code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px; color: #abb2bf; line-height: 1.6;
+  }
+  .page code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px; background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 2px 6px; border-radius: 4px; color: var(--red);
+  }
+  .page pre code { background: none; border: none; padding: 0; color: inherit; }
+  .copy-btn {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text-muted); font-size: 11px; padding: 4px 10px;
+    border-radius: 5px; cursor: pointer; transition: all 0.15s;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .copy-btn:hover { background: var(--bg4); color: var(--text); }
+  .copy-btn.copied { color: var(--tip); border-color: var(--tip); }
+
+  /* Tables */
+  .page table {
+    width: 100%; border-collapse: collapse; margin: 16px 0;
+    font-size: 13.5px;
+  }
+  .page th {
+    background: var(--bg3); padding: 10px 14px;
+    text-align: left; font-weight: 600; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-muted); border-bottom: 1px solid var(--border);
+  }
+  .page td {
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .page tr:hover td { background: var(--bg3); }
+
+  /* Admonitions */
+  .admonition {
+    border-radius: 8px; padding: 16px 18px;
+    margin: 20px 0; border-left: 3px solid;
+    display: flex; gap: 12px;
+  }
+  .admonition-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .admonition-body { flex: 1; }
+  .admonition-title { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .admonition p { margin: 0; font-size: 13.5px; }
+  .admonition.tip { background: rgba(0,184,148,0.08); border-color: var(--tip); }
+  .admonition.tip .admonition-title { color: var(--tip); }
+  .admonition.warn { background: rgba(253,203,110,0.08); border-color: var(--warn); }
+  .admonition.warn .admonition-title { color: var(--warn); }
+  .admonition.danger { background: rgba(232,0,13,0.08); border-color: var(--danger); }
+  .admonition.danger .admonition-title { color: var(--danger); }
+  .admonition.info { background: rgba(9,132,227,0.08); border-color: var(--info); }
+  .admonition.info .admonition-title { color: var(--info); }
+
+  /* Cards Grid */
+  .card-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px; margin: 20px 0;
+  }
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px;
+    cursor: pointer; transition: all 0.2s;
+    text-decoration: none; color: var(--text);
+    display: block;
+  }
+  .card:hover {
+    border-color: var(--red); transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .card-icon { font-size: 24px; margin-bottom: 10px; }
+  .card h3 { font-size: 14px; font-weight: 600; margin: 0 0 6px; color: var(--text); }
+  .card p { font-size: 12.5px; color: var(--text-dim); margin: 0; }
+  .card-arrow { margin-top: 12px; color: var(--red); font-size: 12px; }
+
+  /* Steps */
+  .steps { margin: 20px 0; }
+  .step {
+    display: flex; gap: 16px; margin-bottom: 24px;
+    position: relative;
+  }
+  .step::before {
+    content: ''; position: absolute;
+    left: 16px; top: 36px; bottom: -24px; width: 1px;
+    background: var(--border);
+  }
+  .step:last-child::before { display: none; }
+  .step-num {
+    width: 33px; height: 33px; border-radius: 50%;
+    background: var(--red); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .step-body { flex: 1; padding-top: 4px; }
+  .step-body h4 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .step-body p { font-size: 13.5px; color: var(--text-dim); margin: 0; }
+
+  /* Tabs */
+  .tabs { margin: 20px 0; }
+  .tab-btns { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
+  .tab-btn {
+    padding: 10px 18px; cursor: pointer;
+    font-size: 13px; font-weight: 500;
+    color: var(--text-muted); background: none; border: none;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: all 0.15s; font-family: 'Sora', sans-serif;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--red); border-bottom-color: var(--red); }
+  .tab-content { display: none; padding-top: 20px; }
+  .tab-content.active { display: block; }
+
+  /* Search results */
+  .search-results {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; margin-top: 4px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    z-index: 200; max-height: 360px; overflow-y: auto;
+    display: none;
+  }
+  .search-results.show { display: block; }
+  .search-result-item {
+    padding: 12px 16px; cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .search-result-item:last-child { border-bottom: none; }
+  .search-result-item:hover { background: var(--bg3); }
+  .search-result-item h4 { font-size: 13px; color: var(--text); margin-bottom: 3px; }
+  .search-result-item p { font-size: 12px; color: var(--text-muted); margin: 0; }
+  .search-wrapper { position: relative; flex: 1; max-width: 480px; margin-left: 16px; }
+
+  /* Keyboard shortcut */
+  kbd {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; background: var(--bg3);
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 2px 6px; color: var(--text-muted);
+  }
+
+  /* Page nav */
+  .page-nav {
+    display: flex; gap: 16px; margin-top: 48px;
+    padding-top: 24px; border-top: 1px solid var(--border);
+  }
+  .page-nav-btn {
+    flex: 1; padding: 14px 18px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer;
+    transition: all 0.2s; text-decoration: none; color: var(--text);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .page-nav-btn:hover { border-color: var(--red); background: var(--red-glow); }
+  .page-nav-btn.prev { justify-content: flex-start; }
+  .page-nav-btn.next { justify-content: flex-end; text-align: right; }
+  .page-nav-label { font-size: 11px; color: var(--text-muted); display: block; font-family: 'IBM Plex Mono', monospace; }
+  .page-nav-title { font-size: 13.5px; font-weight: 600; }
+
+  /* Sidebar overlay (mobile) */
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 90;
+  }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .toc { display: none; }
+  }
+  @media (max-width: 780px) {
+    .sidebar { transform: translateX(-100%); z-index: 95; }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.show { display: block; }
+    .main { margin-left: 0; }
+    .content { padding: 32px 24px 60px; }
+    .menu-btn { display: flex; }
+  }
+</style>
 </head>
 <body>
-  <h1>Halo, ini website saya!</h1>
+
+<!-- HEADER -->
+<header class="header">
+  <button class="btn-icon menu-btn" onclick="toggleSidebar()" title="Menu">☰</button>
+  <a class="header-logo" href="#" onclick="showPage('home')">
+    <div class="logo-icon">NX</div>
+    <span>Nixtrain KB</span>
+  </a>
+  <div class="search-wrapper">
+    <div class="header-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Cari dokumentasi... " oninput="doSearch(this.value)" onkeydown="searchKey(event)">
+      <kbd>⌘K</kbd>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-icon" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
+    <a class="btn-icon" href="https://github.com/nixtrain" target="_blank" title="GitHub" style="text-decoration:none">⭐</a>
+  </div>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="nav-section">
+    <div class="nav-section-title">Navigasi</div>
+    <a class="nav-item active" onclick="showPage('home')" href="#">
+      <span class="nav-icon">🏠</span> Home
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Memulai</div>
+    <a class="nav-item" onclick="showPage('persiapan')" href="#">
+      <span class="nav-icon">📋</span> Persiapan Belajar
+    </a>
+    <a class="nav-item" onclick="showPage('roadmap')" href="#">
+      <span class="nav-icon">🗺️</span> Roadmap IT Network
+    </a>
+    <a class="nav-item" onclick="showPage('tools')" href="#">
+      <span class="nav-icon">🛠️</span> Tools yang Dibutuhkan
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <button class="nav-group-btn open" onclick="toggleGroup(this)">
+      <span class="nav-icon">📦</span> Cisco Packet Tracer
+      <span class="chevron">▶</span>
+    </button>
+    <div class="nav-children open">
+      <a class="nav-item" onclick="showPage('cpt-instalasi')" href="#">Instalasi</a>
+      <a class="nav-item" onclick="showPage('cpt-antarmuka')" href="#">Antarmuka</a>
+      <a class="nav-item" onclick="showPage('cpt-topologi')" href="#">Topologi Dasar</a>
+      <a class="nav-item" onclick="showPage('cpt-vlan')" href="#">Konfigurasi VLAN</a>
+      <a class="nav-item" onclick="showPage('cpt-routing')" href="#">Routing Statis</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <button class="nav-group-btn" onclick="toggleGroup(this)">
+      <span class="nav-icon">🌐</span> PNETLab
+      <span class="chevron">▶</span>
+    </button>
+    <div class="nav-children">
+      <a class="nav-item" onclick="showPage('pnet-instalasi')" href="#">Instalasi</a>
+      <a class="nav-item" onclick="showPage('pnet-image')" href="#">Import Image IOS</a>
+      <a class="nav-item" onclick="showPage('pnet-topologi')" href="#">Buat Topologi</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <button class="nav-group-btn" onclick="toggleGroup(this)">
+      <span class="nav-icon">📋</span> Cheatsheet
+      <span class="chevron">▶</span>
+    </button>
+    <div class="nav-children">
+      <a class="nav-item" onclick="showPage('cs-ios')" href="#">Cisco IOS</a>
+      <a class="nav-item" onclick="showPage('cs-ospf')" href="#">OSPF Commands</a>
+      <a class="nav-item" onclick="showPage('cs-bgp')" href="#">BGP Commands</a>
+      <a class="nav-item" onclick="showPage('cs-linux')" href="#">Linux Commands</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <button class="nav-group-btn" onclick="toggleGroup(this)">
+      <span class="nav-icon">🧪</span> Labs
+      <span class="chevron">▶</span>
+    </button>
+    <div class="nav-children">
+      <a class="nav-item" onclick="showPage('lab1')" href="#">Lab 1 – Basic Switch</a>
+      <a class="nav-item" onclick="showPage('lab2')" href="#">Lab 2 – VLAN & Trunking</a>
+      <a class="nav-item" onclick="showPage('lab3')" href="#">Lab 3 – Inter-VLAN</a>
+      <a class="nav-item" onclick="showPage('lab4')" href="#">Lab 4 – OSPF</a>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <button class="nav-group-btn" onclick="toggleGroup(this)">
+      <span class="nav-icon">🔧</span> Troubleshooting
+      <span class="chevron">▶</span>
+    </button>
+    <div class="nav-children">
+      <a class="nav-item" onclick="showPage('ts-ping')" href="#">Tidak Bisa Ping</a>
+      <a class="nav-item" onclick="showPage('ts-vlan')" href="#">VLAN Tidak Jalan</a>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="content">
+
+    <!-- HOME PAGE -->
+    <div class="page active" id="page-home">
+      <div class="page-header">
+        <div class="breadcrumb">nixtrain.github.io</div>
+        <h1>Nixtrain Knowledge Base</h1>
+        <p class="page-desc">Empowering You To Become IT Professional — Panduan lengkap jaringan komputer dari dasar hingga expert.</p>
+      </div>
+
+      <div class="card-grid">
+        <a class="card" onclick="showPage('persiapan')" href="#">
+          <div class="card-icon">🚀</div>
+          <h3>Getting Started</h3>
+          <p>Mulai perjalanan belajar IT Networking. Setup environment dan roadmap lengkap.</p>
+          <div class="card-arrow">→ Mulai di sini</div>
+        </a>
+        <a class="card" onclick="showPage('cpt-instalasi')" href="#">
+          <div class="card-icon">📦</div>
+          <h3>Cisco Packet Tracer</h3>
+          <p>Belajar simulasi jaringan gratis dari Cisco. Dari instalasi hingga routing.</p>
+          <div class="card-arrow">→ Lihat panduan</div>
+        </a>
+        <a class="card" onclick="showPage('pnet-instalasi')" href="#">
+          <div class="card-icon">🌐</div>
+          <h3>PNETLab</h3>
+          <p>Platform lab tingkat lanjut dengan IOS asli. Simulasi topologi enterprise.</p>
+          <div class="card-arrow">→ Lihat panduan</div>
+        </a>
+        <a class="card" onclick="showPage('cs-ios')" href="#">
+          <div class="card-icon">📋</div>
+          <h3>Cheatsheet</h3>
+          <p>Referensi cepat perintah CLI Cisco IOS, OSPF, BGP, dan Linux.</p>
+          <div class="card-arrow">→ Lihat cheatsheet</div>
+        </a>
+        <a class="card" onclick="showPage('lab1')" href="#">
+          <div class="card-icon">🧪</div>
+          <h3>Labs</h3>
+          <p>Latihan hands-on dari basic switching hingga routing protokol advanced.</p>
+          <div class="card-arrow">→ Mulai lab</div>
+        </a>
+        <a class="card" onclick="showPage('ts-ping')" href="#">
+          <div class="card-icon">🔧</div>
+          <h3>Troubleshooting</h3>
+          <p>Panduan mengatasi masalah jaringan yang sering ditemui di lab dan lapangan.</p>
+          <div class="card-arrow">→ Lihat solusi</div>
+        </a>
+      </div>
+
+      <h2>Tentang Nixtrain</h2>
+      <p><strong>Nixtrain</strong> adalah platform belajar IT Networking yang berfokus pada praktik langsung dan materi relevan dengan dunia kerja. Knowledge base ini terus diperbarui secara rutin.</p>
+
+      <div class="admonition tip">
+        <div class="admonition-icon">💡</div>
+        <div class="admonition-body">
+          <div class="admonition-title">Untuk Siapa Knowledge Base Ini?</div>
+          <p>Mahasiswa yang belajar jaringan, profesional yang ingin meningkatkan skill, peserta sertifikasi CCNA/CCNP, dan network engineer yang butuh referensi cepat.</p>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a class="page-nav-btn next" onclick="showPage('persiapan')" href="#">
+          <div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Persiapan Belajar</span></div>
+          <span>→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- PERSIAPAN PAGE -->
+    <div class="page" id="page-persiapan">
+      <div class="page-header">
+        <div class="breadcrumb">Home <span>›</span> Getting Started</div>
+        <h1>Persiapan Belajar</h1>
+        <p class="page-desc">Persiapkan environment dan mindset yang benar sebelum mulai belajar networking.</p>
+        <div class="page-meta"><span class="tag">pemula</span><span class="tag">setup</span></div>
+      </div>
+
+      <h2>Spesifikasi Komputer Minimal</h2>
+      <div class="admonition warn">
+        <div class="admonition-icon">⚠️</div>
+        <div class="admonition-body">
+          <div class="admonition-title">Perhatikan Spesifikasi</div>
+          <p>Beberapa tools simulasi jaringan membutuhkan resource yang cukup besar.</p>
+        </div>
+      </div>
+      <table>
+        <tr><th>Komponen</th><th>Minimal</th><th>Rekomendasi</th></tr>
+        <tr><td>CPU</td><td>Intel Core i3 / Ryzen 3</td><td>Intel Core i5 / Ryzen 5</td></tr>
+        <tr><td>RAM</td><td>4 GB</td><td>8 GB atau lebih</td></tr>
+        <tr><td>Storage</td><td>50 GB free</td><td>100 GB SSD</td></tr>
+        <tr><td>OS</td><td>Windows 10 / Ubuntu 20.04</td><td>Windows 11 / Ubuntu 22.04</td></tr>
+        <tr><td>Internet</td><td>10 Mbps</td><td>25 Mbps atau lebih</td></tr>
+      </table>
+
+      <h2>Software yang Perlu Diinstall</h2>
+      <ol>
+        <li><strong>Cisco Packet Tracer</strong> – Simulator jaringan gratis dari Cisco</li>
+        <li><strong>PNETLab</strong> – Platform lab dengan IOS asli (berjalan di VM)</li>
+        <li><strong>VirtualBox / VMware</strong> – Untuk menjalankan PNETLab</li>
+        <li><strong>PuTTY / MobaXterm</strong> – SSH client untuk akses perangkat</li>
+        <li><strong>Wireshark</strong> – Packet analyzer untuk troubleshooting</li>
+      </ol>
+
+      <div class="admonition tip">
+        <div class="admonition-icon">💡</div>
+        <div class="admonition-body">
+          <div class="admonition-title">Urutan Instalasi</div>
+          <p>Install sesuai urutan di atas. Mulai dari Cisco Packet Tracer dulu karena paling ringan untuk pemula.</p>
+        </div>
+      </div>
+
+      <h2>Tips Belajar yang Efektif</h2>
+      <p>Networking adalah skill yang <strong>harus dipraktikkan</strong>. Teori saja tidak cukup. Gunakan prinsip <strong>70-20-10</strong>:</p>
+      <ul>
+        <li><strong>70%</strong> – Praktik langsung di lab (Packet Tracer / PNETLab)</li>
+        <li><strong>20%</strong> – Belajar dari rekan dan komunitas</li>
+        <li><strong>10%</strong> – Membaca teori dan dokumentasi</li>
+      </ul>
+
+      <div class="page-nav">
+        <a class="page-nav-btn prev" onclick="showPage('home')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Home</span></div></a>
+        <a class="page-nav-btn next" onclick="showPage('roadmap')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Roadmap IT Network</span></div><span>→</span></a>
+      </div>
+    </div>
+
+    <!-- ROADMAP PAGE -->
+    <div class="page" id="page-roadmap">
+      <div class="page-header">
+        <div class="breadcrumb">Home <span>›</span> Getting Started</div>
+        <h1>Roadmap IT Network</h1>
+        <p class="page-desc">Peta jalan belajar networking dari pemula hingga profesional.</p>
+      </div>
+
+      <div class="admonition info">
+        <div class="admonition-icon">ℹ️</div>
+        <div class="admonition-body">
+          <div class="admonition-title">Estimasi Waktu</div>
+          <p>Waktu belajar tiap level tergantung konsistensi. Rata-rata 1-3 bulan per level dengan belajar 1-2 jam/hari.</p>
+        </div>
+      </div>
+
+      <h2>Level 1 — Fondasi (1-3 Bulan)</h2>
+      <ul>
+        <li>Dasar Jaringan Komputer – OSI Model, TCP/IP, IP Address</li>
+        <li>Subnetting – Perhitungan subnet, CIDR, VLSM</li>
+        <li>Perangkat Jaringan – Switch, Router, Hub, Access Point</li>
+        <li>Cisco Packet Tracer – Instalasi dan penggunaan dasar</li>
+      </ul>
+      <p><strong>Target Sertifikasi:</strong> Cisco CCNA (200-301)</p>
+
+      <h2>Level 2 — Intermediate (3-6 Bulan)</h2>
+      <ul>
+        <li>VLAN & Trunking – Segmentasi jaringan</li>
+        <li>Spanning Tree Protocol (STP)</li>
+        <li>Routing Protokol – OSPF, EIGRP, BGP dasar</li>
+        <li>NAT & PAT, ACL</li>
+        <li>PNETLab – Lab dengan IOS virtual</li>
+      </ul>
+      <p><strong>Target Sertifikasi:</strong> Cisco CCNP Enterprise</p>
+
+      <h2>Level 3 — Advanced (6-12 Bulan)</h2>
+      <ul>
+        <li>BGP Advanced – iBGP, eBGP, Policy Routing</li>
+        <li>MPLS – Multi-Protocol Label Switching</li>
+        <li>Network Automation – Python, Ansible</li>
+        <li>Network Security – Firewall, IPS/IDS, VPN</li>
+      </ul>
+      <p><strong>Target Sertifikasi:</strong> Cisco CCNP SP / CCIE</p>
+
+      <h2>Jalur Sertifikasi</h2>
+      <div class="tabs">
+        <div class="tab-btns">
+          <button class="tab-btn active" onclick="switchTab(this, 'tab-cisco')">Cisco</button>
+          <button class="tab-btn" onclick="switchTab(this, 'tab-comptia')">CompTIA</button>
+          <button class="tab-btn" onclick="switchTab(this, 'tab-juniper')">Juniper</button>
+        </div>
+        <div class="tab-content active" id="tab-cisco">
+          <pre><code>Entry Level:    CCNA (200-301)
+                    ↓
+Professional:   CCNP Enterprise / SP / Security
+                    ↓
+Expert:         CCIE Enterprise / SP / Security</code></pre>
+        </div>
+        <div class="tab-content" id="tab-comptia">
+          <pre><code>Entry Level:    CompTIA Network+
+                    ↓
+Security:       CompTIA Security+
+                    ↓
+Advanced:       CompTIA CASP+</code></pre>
+        </div>
+        <div class="tab-content" id="tab-juniper">
+          <pre><code>Entry Level:    JNCIA-Junos
+                    ↓
+Professional:   JNCIP-SP / Enterprise
+                    ↓
+Expert:         JNCIE-SP / Enterprise</code></pre>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a class="page-nav-btn prev" onclick="showPage('persiapan')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Persiapan Belajar</span></div></a>
+        <a class="page-nav-btn next" onclick="showPage('tools')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Tools yang Dibutuhkan</span></div><span>→</span></a>
+      </div>
+    </div>
+
+    <!-- TOOLS PAGE -->
+    <div class="page" id="page-tools">
+      <div class="page-header">
+        <div class="breadcrumb">Home <span>›</span> Getting Started</div>
+        <h1>Tools yang Dibutuhkan</h1>
+        <p class="page-desc">Daftar lengkap software dan tools untuk belajar IT Networking.</p>
+      </div>
+      <h2>Simulasi Jaringan</h2>
+      <table>
+        <tr><th>Tool</th><th>Kegunaan</th><th>Harga</th><th>Download</th></tr>
+        <tr><td><strong>Cisco Packet Tracer</strong></td><td>Simulasi jaringan pemula</td><td>Gratis</td><td>netacad.com</td></tr>
+        <tr><td><strong>PNETLab</strong></td><td>Lab dengan IOS asli</td><td>Gratis</td><td>pnetlab.com</td></tr>
+        <tr><td><strong>GNS3</strong></td><td>Network emulator</td><td>Gratis</td><td>gns3.com</td></tr>
+        <tr><td><strong>EVE-NG</strong></td><td>Network emulator enterprise</td><td>Community gratis</td><td>eve-ng.net</td></tr>
+      </table>
+      <h2>SSH & Terminal Client</h2>
+      <table>
+        <tr><th>Tool</th><th>OS</th><th>Keterangan</th></tr>
+        <tr><td><strong>MobaXterm</strong> ⭐</td><td>Windows</td><td>SSH + SFTP + X11, all-in-one</td></tr>
+        <tr><td><strong>PuTTY</strong></td><td>Windows</td><td>SSH client klasik, ringan</td></tr>
+        <tr><td><strong>Windows Terminal</strong></td><td>Windows</td><td>Built-in Windows 10/11</td></tr>
+        <tr><td><strong>Terminal bawaan</strong></td><td>macOS/Linux</td><td>Sudah support SSH native</td></tr>
+      </table>
+      <div class="page-nav">
+        <a class="page-nav-btn prev" onclick="showPage('roadmap')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Roadmap IT Network</span></div></a>
+        <a class="page-nav-btn next" onclick="showPage('cpt-instalasi')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Instalasi Packet Tracer</span></div><span>→</span></a>
+      </div>
+    </div>
+
+    <!-- CPT INSTALASI -->
+    <div class="page" id="page-cpt-instalasi">
+      <div class="page-header">
+        <div class="breadcrumb">Home <span>›</span> Cisco Packet Tracer</div>
+        <h1>Instalasi Cisco Packet Tracer</h1>
+        <p class="page-desc">Cara download dan install Cisco Packet Tracer di Windows, macOS, dan Linux.</p>
+        <div class="page-meta"><span class="tag">packet-tracer</span><span class="tag">instalasi</span><span class="tag">pemula</span></div>
+      </div>
+
+      <h2>Langkah-langkah Instalasi</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Buat Akun Cisco NetAcad</h4>
+            <p>Buka <strong>netacad.com</strong> → klik Sign Up → isi form dengan email aktif → verifikasi email.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Download Packet Tracer</h4>
+            <p>Login ke NetAcad → klik <strong>Resources → Download Packet Tracer</strong> → pilih versi sesuai OS.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Install Aplikasi</h4>
+            <p>Windows: jalankan <code>.exe</code> sebagai Administrator. Ubuntu: <code>sudo dpkg -i CiscoPacketTracer_*.deb</code></p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>Login di Aplikasi</h4>
+            <p>Buka Packet Tracer → pilih <strong>Login with Cisco NetAcad</strong> → masukkan email dan password.</p>
+          </div>
+        </div>
+      </div>
+
+      <h2>Instalasi Per Platform</h2>
+      <div class="tabs">
+        <div class="tab-btns">
+          <button class="tab-btn active" onclick="switchTab(this, 'tab-win')">Windows</button>
+          <button class="tab-btn" onclick="switchTab(this, 'tab-ubuntu')">Ubuntu</button>
+          <button class="tab-btn" onclick="switchTab(this, 'tab-mac')">macOS</button>
+        </div>
+        <div class="tab-content active" id="tab-win">
+          <ol><li>Jalankan file <code>.exe</code> yang sudah didownload</li><li>Klik <strong>Next → I Agree → Next</strong></li><li>Pilih folder instalasi (biarkan default)</li><li>Klik <strong>Install</strong> → tunggu selesai → <strong>Finish</strong></li></ol>
+          <div class="admonition warn" style="margin-top:14px"><div class="admonition-icon">⚠️</div><div class="admonition-body"><div class="admonition-title">Run as Administrator</div><p>Klik kanan file installer → Run as administrator untuk menghindari masalah permission.</p></div></div>
+        </div>
+        <div class="tab-content" id="tab-ubuntu">
+          <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code># Masuk ke folder Downloads
+cd ~/Downloads
+
+# Install package
+sudo dpkg -i CiscoPacketTracer_*.deb
+
+# Jika ada dependency error
+sudo apt-get install -f</code></pre>
+        </div>
+        <div class="tab-content" id="tab-mac">
+          <ol><li>Buka file <code>.dmg</code></li><li>Drag icon Packet Tracer ke folder <strong>Applications</strong></li><li>Buka dari Launchpad</li><li>Jika ada peringatan security: System Preferences → Security → Open Anyway</li></ol>
+        </div>
+      </div>
+
+      <div class="page-nav">
+        <a class="page-nav-btn prev" onclick="showPage('tools')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Tools yang Dibutuhkan</span></div></a>
+        <a class="page-nav-btn next" onclick="showPage('cpt-vlan')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Konfigurasi VLAN</span></div><span>→</span></a>
+      </div>
+    </div>
+
+    <!-- GENERIC PLACEHOLDER PAGES -->
+    <div class="page" id="page-cpt-antarmuka">
+      <div class="page-header"><div class="breadcrumb">Home <span>›</span> Cisco Packet Tracer</div><h1>Antarmuka Packet Tracer</h1><p class="page-desc">Mengenal tampilan dan fitur-fitur Cisco Packet Tracer.</p></div>
+      <div class="admonition info"><div class="admonition-icon">🔧</div><div class="admonition-body"><div class="admonition-title">Segera Hadir</div><p>Halaman ini sedang dalam proses penulisan. Pantau terus update di <a href="https://www.nixtrain.id" target="_blank">www.nixtrain.id</a></p></div></div>
+      <div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('cpt-instalasi')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Instalasi</span></div></a><a class="page-nav-btn next" onclick="showPage('cpt-topologi')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Topologi Dasar</span></div><span>→</span></a></div>
+    </div>
+
+    <div class="page" id="page-cpt-topologi">
+      <div class="page-header"><div class="breadcrumb">Home <span>›</span> Cisco Packet Tracer</div><h1>Topologi Dasar</h1><p class="page-desc">Membuat topologi jaringan sederhana pertamamu di Packet Tracer.</p></div>
+      <div class="admonition info"><div class="admonition-icon">🔧</div><div class="admonition-body"><div class="admonition-title">Segera Hadir</div><p>Halaman ini sedang dalam proses penulisan.</p></div></div>
+      <div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('cpt-antarmuka')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Antarmuka</span></div></a><a class="page-nav-btn next" onclick="showPage('cpt-vlan')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Konfigurasi VLAN</span></div><span>→</span></a></div>
+    </div>
+
+    <!-- CPT VLAN -->
+    <div class="page" id="page-cpt-vlan">
+      <div class="page-header">
+        <div class="breadcrumb">Home <span>›</span> Cisco Packet Tracer</div>
+        <h1>Konfigurasi VLAN</h1>
+        <p class="page-desc">Implementasi VLAN dan Trunking di switch Cisco.</p>
+        <div class="page-meta"><span class="tag">vlan</span><span class="tag">switching</span></div>
+      </div>
+      <h2>Apa itu VLAN?</h2>
+      <p>VLAN (Virtual Local Area Network) adalah teknik membagi satu physical switch menjadi beberapa logical network yang terisolasi satu sama lain.</p>
+      <div class="admonition tip"><div class="admonition-icon">💡</div><div class="admonition-body"><div class="admonition-title">Manfaat VLAN</div><p>Keamanan jaringan lebih baik, broadcast domain lebih kecil, manajemen lebih fleksibel.</p></div></div>
+      <h2>Konfigurasi VLAN di Switch</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>! Masuk ke mode konfigurasi
+enable
+configure terminal
+
+! Buat VLAN
+vlan 10
+ name DATA
+vlan 20
+ name VOICE
+vlan 99
+ name MANAGEMENT
+
+! Verifikasi VLAN
+do show vlan brief</code></pre>
+      <h2>Assign Port ke VLAN (Access Port)</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>! PC ke VLAN 10
+interface FastEthernet0/1
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+
+! Multiple port sekaligus
+interface range FastEthernet0/1-10
+ switchport mode access
+ switchport access vlan 10</code></pre>
+      <h2>Konfigurasi Trunk Port</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>interface GigabitEthernet0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,99
+
+! Verifikasi trunk
+show interfaces trunk</code></pre>
+      <div class="page-nav">
+        <a class="page-nav-btn prev" onclick="showPage('cpt-topologi')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Topologi Dasar</span></div></a>
+        <a class="page-nav-btn next" onclick="showPage('cpt-routing')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Routing Statis</span></div><span>→</span></a>
+      </div>
+    </div>
+
+    <!-- CPT ROUTING -->
+    <div class="page" id="page-cpt-routing">
+      <div class="page-header"><div class="breadcrumb">Home <span>›</span> Cisco Packet Tracer</div><h1>Routing Statis</h1><p class="page-desc">Konfigurasi routing manual antar jaringan menggunakan static route.</p></div>
+      <h2>Konsep Static Route</h2>
+      <p>Routing statis adalah konfigurasi route secara manual oleh administrator. Cocok untuk jaringan kecil dengan topologi yang jarang berubah.</p>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>! Static route ke jaringan 192.168.2.0/24 via next-hop
+ip route 192.168.2.0 255.255.255.0 192.168.1.2
+
+! Default route (semua traffic ke internet)
+ip route 0.0.0.0 0.0.0.0 203.0.113.1
+
+! Verifikasi routing table
+show ip route
+show ip route 192.168.2.0</code></pre>
+      <div class="admonition warn"><div class="admonition-icon">⚠️</div><div class="admonition-body"><div class="admonition-title">Return Route</div><p>Jangan lupa konfigurasi route kembali (return route) di router tujuan, agar komunikasi dua arah bisa berjalan.</p></div></div>
+      <div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('cpt-vlan')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Konfigurasi VLAN</span></div></a><a class="page-nav-btn next" onclick="showPage('pnet-instalasi')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">PNETLab – Instalasi</span></div><span>→</span></a></div>
+    </div>
+
+    <!-- PNETLAB PAGES -->
+    <div class="page" id="page-pnet-instalasi">
+      <div class="page-header"><div class="breadcrumb">Home <span>›</span> PNETLab</div><h1>Instalasi PNETLab</h1><p class="page-desc">Setup PNETLab sebagai platform lab jaringan tingkat lanjut.</p></div>
+      <div class="admonition info"><div class="admonition-icon">🌐</div><div class="admonition-body"><div class="admonition-title">Tentang PNETLab</div><p>PNETLab berjalan sebagai Virtual Machine di VirtualBox atau VMware. Mendukung IOS Cisco, Juniper, dan perangkat lainnya.</p></div></div>
+      <h2>Cara Install</h2>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Download OVA File</h4><p>Kunjungi <strong>pnetlab.com</strong> → Download → pilih versi terbaru dalam format <code>.ova</code></p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Import ke VirtualBox / VMware</h4><p>VirtualBox: File → Import Appliance → pilih file <code>.ova</code> → Finish</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Setting Network VM</h4><p>Ubah network adapter ke <strong>Bridged</strong> agar bisa diakses dari browser di host.</p></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Akses via Browser</h4><p>Cek IP PNETLab di console VM, lalu buka <code>http://[IP-PNETLab]</code> di browser.</p></div></div>
+      </div>
+      <div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('cpt-routing')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Routing Statis</span></div></a><a class="page-nav-btn next" onclick="showPage('pnet-image')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Import Image IOS</span></div><span>→</span></a></div>
+    </div>
+
+    <div class="page" id="page-pnet-image"><div class="page-header"><div class="breadcrumb">Home <span>›</span> PNETLab</div><h1>Import Image IOS</h1><p class="page-desc">Menambahkan IOS image ke PNETLab.</p></div><div class="admonition info"><div class="admonition-icon">🔧</div><div class="admonition-body"><div class="admonition-title">Segera Hadir</div><p>Halaman ini sedang dalam proses penulisan.</p></div></div></div>
+    <div class="page" id="page-pnet-topologi"><div class="page-header"><div class="breadcrumb">Home <span>›</span> PNETLab</div><h1>Buat Topologi</h1><p class="page-desc">Membuat topologi jaringan di PNETLab.</p></div><div class="admonition info"><div class="admonition-icon">🔧</div><div class="admonition-body"><div class="admonition-title">Segera Hadir</div><p>Halaman ini sedang dalam proses penulisan.</p></div></div></div>
+
+    <!-- CHEATSHEET IOS -->
+    <div class="page" id="page-cs-ios">
+      <div class="page-header">
+        <div class="breadcrumb">Home <span>›</span> Cheatsheet</div>
+        <h1>Cisco IOS Cheatsheet</h1>
+        <p class="page-desc">Referensi cepat perintah Cisco IOS untuk router dan switch.</p>
+        <div class="page-meta"><span class="tag">cheatsheet</span><span class="tag">cisco</span><span class="tag">ios</span></div>
+      </div>
+
+      <h2>Mode Perangkat</h2>
+      <table>
+        <tr><th>Mode</th><th>Prompt</th><th>Cara Masuk</th></tr>
+        <tr><td>User EXEC</td><td><code>Router&gt;</code></td><td>Default saat login</td></tr>
+        <tr><td>Privileged EXEC</td><td><code>Router#</code></td><td><code>enable</code></td></tr>
+        <tr><td>Global Config</td><td><code>Router(config)#</code></td><td><code>configure terminal</code></td></tr>
+        <tr><td>Interface Config</td><td><code>Router(config-if)#</code></td><td><code>interface Gi0/0</code></td></tr>
+      </table>
+
+      <h2>Konfigurasi Dasar</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>! Set hostname
+hostname SW-CORE-01
+
+! Password enable
+enable secret P@ssw0rd
+
+! Password console
+line console 0
+ password cisco123
+ login
+
+! Password VTY (SSH/Telnet)
+line vty 0 4
+ password cisco123
+ login
+ transport input ssh
+
+! Enkripsi semua password
+service password-encryption
+
+! Disable DNS lookup
+no ip domain-lookup</code></pre>
+
+      <h2>Konfigurasi Interface</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>interface GigabitEthernet0/0
+ ip address 192.168.1.1 255.255.255.0
+ description Link to SW-DIST-01
+ no shutdown
+
+! Loopback interface
+interface Loopback0
+ ip address 10.0.0.1 255.255.255.255
+
+! Verifikasi
+show interfaces
+show ip interface brief</code></pre>
+
+      <h2>Show Commands Penting</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>show running-config              ! Konfigurasi aktif
+show startup-config              ! Konfigurasi tersimpan
+show version                     ! Info IOS & hardware
+show ip interface brief          ! Status interface (ringkas)
+show ip route                    ! Routing table
+show arp                         ! ARP table
+show mac address-table           ! MAC table (switch)
+show cdp neighbors               ! Perangkat Cisco tetangga
+show clock                       ! Waktu sistem</code></pre>
+
+      <h2>Save & Backup</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>! Simpan konfigurasi
+write memory
+! atau
+copy running-config startup-config
+
+! Reset factory default
+write erase
+reload</code></pre>
+
+      <h2>Troubleshooting Commands</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>ping 192.168.1.1
+ping 8.8.8.8 source GigabitEthernet0/0
+traceroute 192.168.2.1
+
+! Debug (HATI-HATI di production!)
+debug ip ospf events
+undebug all</code></pre>
+      <div class="admonition danger"><div class="admonition-icon">🚨</div><div class="admonition-body"><div class="admonition-title">Perhatian Debug</div><p>Jangan gunakan perintah <code>debug</code> di perangkat production. Bisa menyebabkan CPU tinggi dan gangguan jaringan.</p></div></div>
+
+      <div class="page-nav"><a class="page-nav-btn next" onclick="showPage('cs-ospf')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">OSPF Commands</span></div><span>→</span></a></div>
+    </div>
+
+    <!-- OSPF CHEATSHEET -->
+    <div class="page" id="page-cs-ospf">
+      <div class="page-header"><div class="breadcrumb">Home <span>›</span> Cheatsheet</div><h1>OSPF Commands</h1><p class="page-desc">Referensi konfigurasi dan troubleshooting OSPF.</p><div class="page-meta"><span class="tag">ospf</span><span class="tag">routing</span></div></div>
+      <h2>Konfigurasi OSPF Dasar</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>router ospf 1
+ router-id 1.1.1.1
+ network 192.168.1.0 0.0.0.255 area 0
+ network 10.0.0.1 0.0.0.0 area 0
+ passive-interface default
+ no passive-interface GigabitEthernet0/0</code></pre>
+      <h2>Verifikasi OSPF</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>show ip ospf neighbor
+show ip ospf neighbor detail
+show ip ospf database
+show ip ospf interface brief
+show ip route ospf
+show ip ospf</code></pre>
+      <div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('cs-ios')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Cisco IOS</span></div></a><a class="page-nav-btn next" onclick="showPage('cs-bgp')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">BGP Commands</span></div><span>→</span></a></div>
+    </div>
+
+    <!-- BGP CHEATSHEET -->
+    <div class="page" id="page-cs-bgp">
+      <div class="page-header"><div class="breadcrumb">Home <span>›</span> Cheatsheet</div><h1>BGP Commands</h1><p class="page-desc">Referensi konfigurasi dan verifikasi BGP.</p><div class="page-meta"><span class="tag">bgp</span><span class="tag">routing</span></div></div>
+      <h2>Konfigurasi BGP Dasar</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>router bgp 65001
+ bgp router-id 1.1.1.1
+ neighbor 192.168.1.2 remote-as 65002
+ neighbor 192.168.1.2 description ISP-Uplink
+ network 10.0.0.0 mask 255.255.255.0</code></pre>
+      <h2>Verifikasi BGP</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>show ip bgp summary
+show ip bgp neighbors
+show ip bgp
+show ip route bgp</code></pre>
+      <div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('cs-ospf')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">OSPF Commands</span></div></a><a class="page-nav-btn next" onclick="showPage('cs-linux')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Linux Commands</span></div><span>→</span></a></div>
+    </div>
+
+    <!-- LINUX CHEATSHEET -->
+    <div class="page" id="page-cs-linux">
+      <div class="page-header"><div class="breadcrumb">Home <span>›</span> Cheatsheet</div><h1>Linux Commands</h1><p class="page-desc">Perintah Linux yang berguna untuk network engineer.</p></div>
+      <h2>Networking Commands</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code># Cek IP address
+ip addr show
+ifconfig
+
+# Cek routing table
+ip route show
+netstat -rn
+
+# Ping & Traceroute
+ping -c 4 8.8.8.8
+traceroute 8.8.8.8
+mtr 8.8.8.8
+
+# Cek port yang terbuka
+ss -tuln
+netstat -tuln
+
+# DNS lookup
+nslookup nixtrain.id
+dig nixtrain.id</code></pre>
+      <div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('cs-bgp')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">BGP Commands</span></div></a><a class="page-nav-btn next" onclick="showPage('lab1')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Lab 1 – Basic Switch</span></div><span>→</span></a></div>
+    </div>
+
+    <!-- LAB 1 -->
+    <div class="page" id="page-lab1">
+      <div class="page-header">
+        <div class="breadcrumb">Home <span>›</span> Labs</div>
+        <h1>Lab 1 – Basic Switch Configuration</h1>
+        <p class="page-desc">Konfigurasi dasar switch Cisco: hostname, password, VLAN management, SSH.</p>
+        <div class="page-meta"><span class="tag">lab</span><span class="tag">switch</span><span class="tag">pemula</span></div>
+      </div>
+
+      <h2>Tujuan Lab</h2>
+      <ul>
+        <li>Mengkonfigurasi hostname dan password pada switch</li>
+        <li>Mengkonfigurasi IP address untuk remote management</li>
+        <li>Mengaktifkan SSH untuk akses yang aman</li>
+        <li>Melakukan verifikasi konfigurasi</li>
+      </ul>
+
+      <h2>Tabel Addressing</h2>
+      <table>
+        <tr><th>Device</th><th>Interface</th><th>IP Address</th><th>VLAN</th></tr>
+        <tr><td>SW-ACCESS-01</td><td>VLAN 99</td><td>192.168.99.10/24</td><td>99 (Mgmt)</td></tr>
+        <tr><td>PC-1</td><td>NIC</td><td>192.168.10.10/24</td><td>10</td></tr>
+        <tr><td>PC-2</td><td>NIC</td><td>192.168.10.11/24</td><td>10</td></tr>
+      </table>
+
+      <h2>Konfigurasi</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>enable
+configure terminal
+
+! Hostname & basic settings
+hostname SW-ACCESS-01
+no ip domain-lookup
+service password-encryption
+
+! Enable password
+enable secret N1xtra1n@2024
+
+! Console password
+line console 0
+ password C0nsole@123
+ login
+ logging synchronous
+
+! Buat VLAN
+vlan 10
+ name DATA
+vlan 99
+ name MANAGEMENT
+
+! Access port
+interface FastEthernet0/1
+ description PC-1
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+
+! Management IP
+interface vlan 99
+ ip address 192.168.99.10 255.255.255.0
+ no shutdown
+
+ip default-gateway 192.168.99.1
+
+! SSH
+ip domain-name nixtrain.lab
+crypto key generate rsa modulus 2048
+ip ssh version 2
+
+line vty 0 4
+ transport input ssh
+ login local
+username admin privilege 15 secret Adm1n@123
+
+! Simpan
+end
+write memory</code></pre>
+
+      <div class="admonition tip"><div class="admonition-icon">💡</div><div class="admonition-body"><div class="admonition-title">Verifikasi</div><p>Jalankan <code>show vlan brief</code>, <code>show ip interface brief</code>, dan <code>show ip ssh</code> untuk memastikan konfigurasi berhasil.</p></div></div>
+
+      <div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('cs-linux')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Linux Commands</span></div></a><a class="page-nav-btn next" onclick="showPage('lab2')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Lab 2 – VLAN & Trunking</span></div><span>→</span></a></div>
+    </div>
+
+    <!-- LAB 2, 3, 4 PLACEHOLDERS -->
+    <div class="page" id="page-lab2"><div class="page-header"><div class="breadcrumb">Home <span>›</span> Labs</div><h1>Lab 2 – VLAN & Trunking</h1><p class="page-desc">Segmentasi jaringan dengan VLAN dan konfigurasi trunk antar switch.</p></div><div class="admonition info"><div class="admonition-icon">🔧</div><div class="admonition-body"><div class="admonition-title">Segera Hadir</div><p>Halaman ini sedang dalam proses penulisan.</p></div></div><div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('lab1')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Lab 1</span></div></a><a class="page-nav-btn next" onclick="showPage('lab3')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Lab 3</span></div><span>→</span></a></div></div>
+    <div class="page" id="page-lab3"><div class="page-header"><div class="breadcrumb">Home <span>›</span> Labs</div><h1>Lab 3 – Inter-VLAN Routing</h1><p class="page-desc">Menghubungkan traffic antar VLAN menggunakan Router-on-a-Stick atau L3 Switch.</p></div><div class="admonition info"><div class="admonition-icon">🔧</div><div class="admonition-body"><div class="admonition-title">Segera Hadir</div><p>Halaman ini sedang dalam proses penulisan.</p></div></div><div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('lab2')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Lab 2</span></div></a><a class="page-nav-btn next" onclick="showPage('lab4')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Lab 4</span></div><span>→</span></a></div></div>
+    <div class="page" id="page-lab4"><div class="page-header"><div class="breadcrumb">Home <span>›</span> Labs</div><h1>Lab 4 – OSPF</h1><p class="page-desc">Implementasi OSPF routing protokol lengkap dalam topologi multi-area.</p></div><div class="admonition info"><div class="admonition-icon">🔧</div><div class="admonition-body"><div class="admonition-title">Segera Hadir</div><p>Halaman ini sedang dalam proses penulisan.</p></div></div><div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('lab3')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Lab 3</span></div></a><a class="page-nav-btn next" onclick="showPage('ts-ping')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">Troubleshooting</span></div><span>→</span></a></div></div>
+
+    <!-- TROUBLESHOOTING -->
+    <div class="page" id="page-ts-ping">
+      <div class="page-header">
+        <div class="breadcrumb">Home <span>›</span> Troubleshooting</div>
+        <h1>Tidak Bisa Ping</h1>
+        <p class="page-desc">Diagnosa dan solusi ketika perangkat tidak bisa saling berkomunikasi.</p>
+        <div class="page-meta"><span class="tag">troubleshooting</span><span class="tag">ping</span></div>
+      </div>
+
+      <h2>Checklist Troubleshooting</h2>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Cek Fisik (Layer 1)</h4><p>Pastikan kabel terhubung dan LED port menyala. Jalankan <code>show interfaces Gi0/0</code> — pastikan status <code>up/up</code>.</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Cek IP Address (Layer 3)</h4><p>Jalankan <code>show ip interface brief</code>. Pastikan IP address, subnet mask, dan status interface sudah benar.</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Cek Routing Table</h4><p>Jalankan <code>show ip route</code>. Pastikan ada route ke jaringan tujuan. Jika tidak ada, tambahkan static route atau cek routing protokol.</p></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Cek ACL</h4><p>Jalankan <code>show ip access-lists</code>. Periksa apakah ada ACL yang memblokir traffic.</p></div></div>
+      </div>
+
+      <h2>Penyebab Umum & Solusi</h2>
+      <table>
+        <tr><th>Gejala</th><th>Kemungkinan Penyebab</th><th>Solusi</th></tr>
+        <tr><td>Interface down/down</td><td>Masalah fisik, kabel rusak</td><td>Ganti kabel, cek port</td></tr>
+        <tr><td>Interface admin down</td><td>Interface di-shutdown</td><td><code>no shutdown</code></td></tr>
+        <tr><td>Ping ke gateway gagal</td><td>IP tidak se-subnet</td><td>Koreksi IP address</td></tr>
+        <tr><td>Ping gateway OK, tapi ke remote gagal</td><td>Tidak ada route</td><td>Tambah static/dynamic route</td></tr>
+        <tr><td>Ping intermittent</td><td>Duplex mismatch, kabel buruk</td><td>Set duplex manual, ganti kabel</td></tr>
+      </table>
+
+      <div class="admonition danger"><div class="admonition-icon">🚨</div><div class="admonition-body"><div class="admonition-title">Return Route</div><p>Sering terlupakan: router di ujung juga harus punya route kembali ke sumber. Cek routing table di kedua sisi!</p></div></div>
+
+      <div class="page-nav"><a class="page-nav-btn next" onclick="showPage('ts-vlan')" href="#"><div><span class="page-nav-label">Selanjutnya</span><span class="page-nav-title">VLAN Tidak Jalan</span></div><span>→</span></a></div>
+    </div>
+
+    <div class="page" id="page-ts-vlan">
+      <div class="page-header"><div class="breadcrumb">Home <span>›</span> Troubleshooting</div><h1>VLAN Tidak Jalan</h1><p class="page-desc">Mengatasi masalah VLAN yang tidak berfungsi sebagaimana mestinya.</p><div class="page-meta"><span class="tag">troubleshooting</span><span class="tag">vlan</span></div></div>
+      <h2>Checklist VLAN</h2>
+      <pre><button class="copy-btn" onclick="copyCode(this)">copy</button><code>! 1. Cek VLAN sudah dibuat
+show vlan brief
+
+! 2. Cek port sudah di-assign ke VLAN yang benar
+show interfaces FastEthernet0/1 switchport
+
+! 3. Cek trunk port
+show interfaces trunk
+show interfaces GigabitEthernet0/1 trunk
+
+! 4. Pastikan VLAN diizinkan di trunk
+show interfaces trunk | include allowed</code></pre>
+      <h2>Masalah Umum</h2>
+      <table>
+        <tr><th>Masalah</th><th>Penyebab</th><th>Solusi</th></tr>
+        <tr><td>PC tidak bisa ping ke VLAN lain</td><td>Tidak ada Inter-VLAN routing</td><td>Konfigurasi Router-on-a-Stick atau SVI di L3 Switch</td></tr>
+        <tr><td>VLAN tidak ada di show vlan brief</td><td>VLAN belum dibuat</td><td><code>vlan [id]</code> di global config</td></tr>
+        <tr><td>Traffic tidak lewat trunk</td><td>VLAN tidak diizinkan di trunk</td><td><code>switchport trunk allowed vlan add [id]</code></td></tr>
+        <tr><td>Port tetap di VLAN 1</td><td>Lupa assign ke VLAN</td><td><code>switchport access vlan [id]</code></td></tr>
+      </table>
+      <div class="page-nav"><a class="page-nav-btn prev" onclick="showPage('ts-ping')" href="#"><span>←</span><div><span class="page-nav-label">Sebelumnya</span><span class="page-nav-title">Tidak Bisa Ping</span></div></a></div>
+    </div>
+
+  </div><!-- /content -->
+
+  <aside class="toc" id="tocPanel">
+    <div class="toc-title">On this page</div>
+    <ul class="toc-list" id="tocList"></ul>
+  </aside>
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+// ── PAGE NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + id);
+  if (target) { target.classList.add('active'); }
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.getAttribute('onclick')?.includes("'"+id+"'"));
+  });
+
+  // Auto-open parent group
+  document.querySelectorAll('.nav-children').forEach(group => {
+    const hasActive = group.querySelector('.nav-item.active');
+    if (hasActive) {
+      group.classList.add('open');
+      const btn = group.previousElementSibling;
+      if (btn) btn.classList.add('open');
+    }
+  });
+
+  // Scroll top
+  window.scrollTo(0, 0);
+  buildTOC(target);
+
+  // Close sidebar on mobile
+  if (window.innerWidth <= 780) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+  }
+}
+
+// ── TOC ──
+function buildTOC(page) {
+  const list = document.getElementById('tocList');
+  list.innerHTML = '';
+  if (!page) return;
+  page.querySelectorAll('h2, h3').forEach(h => {
+    if (!h.id) h.id = h.textContent.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    if (h.tagName === 'H3') a.style.paddingLeft = '24px';
+    li.appendChild(a);
+    list.appendChild(li);
+  });
+}
+
+// ── SIDEBAR GROUP TOGGLE ──
+function toggleGroup(btn) {
+  btn.classList.toggle('open');
+  const children = btn.nextElementSibling;
+  if (children) children.classList.toggle('open');
+}
+
+// ── THEME ──
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeBtn').textContent = isDark ? '🌙' : '☀️';
+}
+
+// ── SIDEBAR MOBILE ──
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+
+// ── COPY CODE ──
+function copyCode(btn) {
+  const code = btn.nextElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── TABS ──
+function switchTab(btn, contentId) {
+  const tabsEl = btn.closest('.tabs');
+  tabsEl.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  tabsEl.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(contentId).classList.add('active');
+}
+
+// ── SEARCH ──
+const searchIndex = [
+  { id: 'home', title: 'Home', desc: 'Halaman utama Nixtrain Knowledge Base' },
+  { id: 'persiapan', title: 'Persiapan Belajar', desc: 'Setup environment, spesifikasi komputer, tips belajar' },
+  { id: 'roadmap', title: 'Roadmap IT Network', desc: 'Peta jalan belajar dari pemula hingga profesional, CCNA, CCNP' },
+  { id: 'tools', title: 'Tools yang Dibutuhkan', desc: 'Cisco Packet Tracer, PNETLab, MobaXterm, Wireshark' },
+  { id: 'cpt-instalasi', title: 'Instalasi Cisco Packet Tracer', desc: 'Download dan install di Windows, Ubuntu, macOS' },
+  { id: 'cpt-antarmuka', title: 'Antarmuka Packet Tracer', desc: 'Mengenal tampilan dan fitur Cisco Packet Tracer' },
+  { id: 'cpt-topologi', title: 'Topologi Dasar', desc: 'Membuat topologi jaringan sederhana di Packet Tracer' },
+  { id: 'cpt-vlan', title: 'Konfigurasi VLAN', desc: 'VLAN, trunking, access port, switchport mode' },
+  { id: 'cpt-routing', title: 'Routing Statis', desc: 'Static route, default route, ip route' },
+  { id: 'pnet-instalasi', title: 'Instalasi PNETLab', desc: 'Setup PNETLab di VirtualBox/VMware' },
+  { id: 'cs-ios', title: 'Cisco IOS Cheatsheet', desc: 'Perintah Cisco IOS, hostname, password, interface, show commands' },
+  { id: 'cs-ospf', title: 'OSPF Commands', desc: 'Konfigurasi dan verifikasi OSPF, router-id, network, area' },
+  { id: 'cs-bgp', title: 'BGP Commands', desc: 'Konfigurasi BGP, neighbor, AS number, network' },
+  { id: 'cs-linux', title: 'Linux Commands', desc: 'ip addr, ip route, ping, traceroute, ss, nslookup' },
+  { id: 'lab1', title: 'Lab 1 – Basic Switch', desc: 'Konfigurasi dasar switch: hostname, password, VLAN, SSH' },
+  { id: 'lab2', title: 'Lab 2 – VLAN & Trunking', desc: 'Segmentasi jaringan dengan VLAN' },
+  { id: 'lab3', title: 'Lab 3 – Inter-VLAN Routing', desc: 'Router-on-a-stick, SVI, inter-VLAN' },
+  { id: 'lab4', title: 'Lab 4 – OSPF', desc: 'Implementasi OSPF routing protokol' },
+  { id: 'ts-ping', title: 'Tidak Bisa Ping', desc: 'Troubleshooting konektivitas, ping gagal, interface down' },
+  { id: 'ts-vlan', title: 'VLAN Tidak Jalan', desc: 'Troubleshooting VLAN, trunk, allowed vlan' },
+];
+
+function doSearch(q) {
+  const results = document.getElementById('searchResults');
+  if (!q || q.length < 2) { results.classList.remove('show'); return; }
+  const filtered = searchIndex.filter(item =>
+    item.title.toLowerCase().includes(q.toLowerCase()) ||
+    item.desc.toLowerCase().includes(q.toLowerCase())
+  );
+  if (filtered.length === 0) {
+    results.innerHTML = '<div class="search-result-item"><p>Tidak ada hasil untuk "'+q+'"</p></div>';
+  } else {
+    results.innerHTML = filtered.slice(0, 6).map(item =>
+      `<div class="search-result-item" onclick="showPage('${item.id}'); document.getElementById('searchInput').value=''; document.getElementById('searchResults').classList.remove('show')">
+        <h4>${item.title}</h4><p>${item.desc}</p>
+      </div>`
+    ).join('');
+  }
+  results.classList.add('show');
+}
+
+function searchKey(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('searchResults').classList.remove('show');
+    document.getElementById('searchInput').value = '';
+  }
+}
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.search-wrapper')) {
+    document.getElementById('searchResults').classList.remove('show');
+  }
+});
+
+// Keyboard shortcut Cmd/Ctrl+K
+document.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+// Init
+buildTOC(document.getElementById('page-home'));
+</script>
 </body>
 </html>
